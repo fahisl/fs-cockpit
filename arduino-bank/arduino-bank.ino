@@ -46,9 +46,14 @@ boolean validCommand = false;
 String commandString;  // A string parsed and prepared for processing
 char inChar;                // Temp character
 int desiredAngle;       // Angle desired by Flight Simulator
-const int potZero = 407;  //potZeroDefault;
-const int potMax = 810;  //30 degrees left wing down
-const int potMin = 4;  // 30 degrees right wing down
+
+
+// Angular Constants
+const float maxBankDegrees = 10;  // Maximum desired bank angle
+const float potPerDegree = 13.4;  // Potentiometer for 1 degree
+const int potZero = 407;          // Wings-level potentiometer value
+const int potMax = potZero + (maxBankDegrees * potPerDegree);
+const int potMin = potZero - (maxBankDegrees * potPerDegree);
 int potDesired = potZero;
 int potCurrent;
 
