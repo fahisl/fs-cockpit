@@ -8,11 +8,12 @@ const int pinDirection = 2;
 const int pinPWM = 3;
 
 // System constants
-const int upSpeeds[6]   = {0, 80, 100, 110, 125, 250};
-const int downSpeeds[6] = {0, 80, 100, 110, 125, 250};
 const int separationCharacter = ',';
 
 // Platform calibration
+const double maxPWMDegrees = 5;
+const int maxPWM = 255;
+const int minPWM = 0;
 const int potZero = 467;
 const int maxPot = 543;
 const int minPot = 281;
@@ -23,11 +24,14 @@ const int mapperMaxPot = 543;
 
 // System variables
 double potPerDegree = (mapperMaxPot - potZero) / mapperMaxAngle;
+double pwmFactor = (maxPWM / maxPWMDegrees) / potPerDegree;
 int targetAngle = 0;
 int targetPot = potZero;
 int currentPot;
 int deltaPot = 0;
+int nextPWMValue = 0;
 int pwmValue = 0;
+bool nextDirectionValue;
 bool directionValue;
 bool testMode = false;
 String command;
@@ -42,27 +46,39 @@ void setup() {
 }
 
 void loop() {
-  // Read command
   readCommand();
+  setTarget();
+  setDirection();
+  setPWM();
+}
 
-  // Potentiometer values
+void setTarget() {
   targetPot = map(targetAngle, mapperMinAngle, mapperMaxAngle, mapperMinPot, mapperMaxPot);
   targetPot = constrain(targetPot, minPot, maxPot);
-  currentPot = analogRead(pinPotentiometer);  
+  currentPot = analogRead(pinPotentiometer);
+  deltaPot = abs(currentPot - targetPot);
+}
 
-  // Set direction
-  bool newDirectionValue = (targetPot <= currentPot);
-  if (newDirectionValue != directionValue) {
-    if (!testMode) digitalWrite(pinDirection, newDirectionValue);
-    directionValue = newDirectionValue;
+void setDirection() {
+  nextDirectionValue = (targetPot <= currentPot);
+  if (nextDirectionValue != directionValue) {
+    if (!testMode) digitalWrite(pinDirection, nextDirectionValue);
+    directionValue = nextDirectionValue;
+  }
+}
+
+void setPWM() {
+  nextPWMValue = pwmFactor * deltaPot;
+  nextPWMValue = constrain(nextPWMValue, 0, maxPWM);
+
+  // This block prevents using PWM that is too low to move the platform
+  if (nextPWMValue < minPWM) {
+    nextPWMValue = 0;
   }
 
-  // Set PWM
-  deltaPot = min(5, abs(currentPot - targetPot) / potPerDegree);
-  int newPWMValue = upSpeeds[deltaPot];
-  if (newPWMValue != pwmValue) {
-    if (!testMode) analogWrite(pinPWM, newPWMValue);
-    pwmValue = newPWMValue;
+  if (nextPWMValue != pwmValue) {
+    if (!testMode) analogWrite(pinPWM, nextPWMValue);
+    pwmValue = nextPWMValue;
   }
 }
 
