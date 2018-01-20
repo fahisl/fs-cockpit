@@ -10,23 +10,27 @@ const int pinPWM = 3;
 // System constants
 const int upSpeeds[6]   = {0, 80, 100, 110, 125, 250};
 const int downSpeeds[6] = {0, 80, 100, 110, 125, 250};
-const int serialBaudRate = 115200;
 const int separationCharacter = ',';
 
 // Platform calibration
-const int maxAngle = 20;
-const int potZero = 407;
-const int potDeltaMax = 134;
+const int potZero = 467;
+const int maxPot = 543;
+const int minPot = 281;
+const int mapperMinAngle = -10;
+const int mapperMinPot = 391;
+const int mapperMaxAngle = 10;
+const int mapperMaxPot = 543;
 
 // System variables
+double potPerDegree = (mapperMaxPot - potZero) / mapperMaxAngle;
 int targetAngle = 0;
 int targetPot = potZero;
 int currentPot;
+int deltaPot = 0;
 int pwmValue = 0;
 bool directionValue;
-int deltaPot = 0;
-String command;
 bool testMode = false;
+String command;
 
 void setup() {
   // Set pin modes
@@ -40,10 +44,11 @@ void setup() {
 void loop() {
   // Read command
   readCommand();
-  targetPot = map(targetAngle, -10, 10, 391, 543);
-  if (targetPot > 543) targetPot = 543;
-  if (targetPot < 281) targetPot = 281;
-  currentPot = analogRead(pinPotentiometer);
+
+  // Potentiometer values
+  targetPot = map(targetAngle, mapperMinAngle, mapperMaxAngle, mapperMinPot, mapperMaxPot);
+  targetPot = constrain(targetPot, minPot, maxPot);
+  currentPot = analogRead(pinPotentiometer);  
 
   // Set direction
   bool newDirectionValue = (targetPot <= currentPot);
@@ -53,12 +58,19 @@ void loop() {
   }
 
   // Set PWM
-  deltaPot = min(5, abs(currentPot - targetPot) / 7.6);
+  deltaPot = min(5, abs(currentPot - targetPot) / potPerDegree);
   int newPWMValue = upSpeeds[deltaPot];
   if (newPWMValue != pwmValue) {
     if (!testMode) analogWrite(pinPWM, newPWMValue);
     pwmValue = newPWMValue;
   }
+}
+
+void pulse(bool direction, int duration, int pwm) {
+  digitalWrite(pinDirection, direction);
+  analogWrite(pinPWM, pwm);
+  delay(duration);
+  analogWrite(pinPWM, 0);
 }
 
 void readCommand() {
@@ -111,18 +123,12 @@ void readCommand() {
   }
 
   if (command == "pulsePositive") {
-    digitalWrite(pinDirection, HIGH);
-    analogWrite(pinPWM, 100);
-    delay(1000);
-    analogWrite(pinPWM, 0);
+    pulse(HIGH, 1000, 100);
     return;
   }
 
   if (command == "pulseNegative") {
-    digitalWrite(pinDirection, LOW);
-    analogWrite(pinPWM, 100);
-    delay(1000);
-    analogWrite(pinPWM, 0);
+    pulse(LOW, 1000, 100);
     return;
   }
 }
