@@ -283,13 +283,11 @@ namespace fs_cockpit_2 {
         }
 
         private void buttonBankConnect_Click(object sender, EventArgs e) {
-            if (comboBankCom.Text == "")
-            {
+            if (comboBankCom.Text == "") {
                 displayText("Select bank axis COM port first");
                 return;
             }
-            try
-            {
+            try {
                 comboBankCom.Enabled = false;
                 portBank = new SerialPort(comboBankCom.Text, 115200, Parity.None, 8, StopBits.One);
                 portBank.Open();
@@ -298,8 +296,7 @@ namespace fs_cockpit_2 {
                 buttonBankTest.Enabled = true;
                 displayText("Connected to " + comboBankCom.Text);
             }
-            catch (Exception)
-            {
+            catch (Exception) {
                 displayText("Error connecting to " + comboBankCom.Text);
                 comboBankCom.Enabled = true;
                 buttonBankConnect.Enabled = true;
@@ -307,41 +304,33 @@ namespace fs_cockpit_2 {
             }
         }
 
-        private void buttonBankTest_Click(object sender, EventArgs e)
-        {
-            if (!portBank.IsOpen)
-            {
+        private void buttonBankTest_Click(object sender, EventArgs e) {
+            if (!portBank.IsOpen) {
                 displayText("Bank axis COM port is not connected");
                 return;
             }
-            if (buttonBankTest.Text == "Test ON")
-            {
+            if (buttonBankTest.Text == "Test ON") {
                 portBank.Write("on,");
                 displayText("Verify LED is now ON on bank axis Arduino controller");
                 buttonBankTest.Text = "Test OFF";
             }
-            else
-            {
+            else {
                 portBank.Write("off,");
                 displayText("Verify LED is now OFF on bank axis Arduino controller");
                 buttonBankTest.Text = "Test ON";
             }
         }
 
-        private void comboBankCom_SelectedIndexChanged(object sender, EventArgs e)
-        {
+        private void comboBankCom_SelectedIndexChanged(object sender, EventArgs e) {
             buttonBankConnect.Enabled = (comboBankCom.Text != "");
         }
 
-        private void buttonBankDisconnect_Click(object sender, EventArgs e)
-        {
-            if (portBank.IsOpen)
-            {
+        private void buttonBankDisconnect_Click(object sender, EventArgs e) {
+            if (portBank.IsOpen) {
                 portBank.Close();
                 displayText("Disconnected from bank axis COM port");
             }
-            else
-            {
+            else {
                 displayText("Already disconnected from bank axis COM port");
             }
             comboBankCom.Enabled = true;
