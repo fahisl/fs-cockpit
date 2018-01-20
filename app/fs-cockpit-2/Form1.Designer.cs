@@ -47,17 +47,17 @@
             this.buttonBankTest = new System.Windows.Forms.Button();
             this.comboBankCom = new System.Windows.Forms.ComboBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.textAircraft = new System.Windows.Forms.TextBox();
             this.textSimPitch = new System.Windows.Forms.TextBox();
             this.textControllerPitch = new System.Windows.Forms.TextBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.textControllerPitchStatus2 = new System.Windows.Forms.TextBox();
+            this.textPitchControllerStatus = new System.Windows.Forms.TextBox();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.textControllerBank = new System.Windows.Forms.TextBox();
             this.textSimBank = new System.Windows.Forms.TextBox();
-            this.textAircraft = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -291,6 +291,15 @@
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Prepar3D";
             // 
+            // textAircraft
+            // 
+            this.textAircraft.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textAircraft.Location = new System.Drawing.Point(6, 19);
+            this.textAircraft.Name = "textAircraft";
+            this.textAircraft.ReadOnly = true;
+            this.textAircraft.Size = new System.Drawing.Size(236, 20);
+            this.textAircraft.TabIndex = 4;
+            // 
             // textSimPitch
             // 
             this.textSimPitch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -309,26 +318,28 @@
             this.textControllerPitch.Size = new System.Drawing.Size(115, 20);
             this.textControllerPitch.TabIndex = 1;
             // 
-            // textBox1
+            // textControllerPitchStatus2
             // 
-            this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBox1.Location = new System.Drawing.Point(128, 22);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(115, 20);
-            this.textBox1.TabIndex = 2;
+            this.textControllerPitchStatus2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textControllerPitchStatus2.Location = new System.Drawing.Point(128, 22);
+            this.textControllerPitchStatus2.Name = "textControllerPitchStatus2";
+            this.textControllerPitchStatus2.ReadOnly = true;
+            this.textControllerPitchStatus2.Size = new System.Drawing.Size(115, 20);
+            this.textControllerPitchStatus2.TabIndex = 2;
             // 
-            // textBox2
+            // textPitchControllerStatus
             // 
-            this.textBox2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBox2.Location = new System.Drawing.Point(128, 48);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(115, 20);
-            this.textBox2.TabIndex = 3;
+            this.textPitchControllerStatus.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textPitchControllerStatus.Location = new System.Drawing.Point(128, 48);
+            this.textPitchControllerStatus.Name = "textPitchControllerStatus";
+            this.textPitchControllerStatus.ReadOnly = true;
+            this.textPitchControllerStatus.Size = new System.Drawing.Size(115, 20);
+            this.textPitchControllerStatus.TabIndex = 3;
             // 
             // groupBox6
             // 
-            this.groupBox6.Controls.Add(this.textBox2);
-            this.groupBox6.Controls.Add(this.textBox1);
+            this.groupBox6.Controls.Add(this.textPitchControllerStatus);
+            this.groupBox6.Controls.Add(this.textControllerPitchStatus2);
             this.groupBox6.Controls.Add(this.textControllerPitch);
             this.groupBox6.Controls.Add(this.textSimPitch);
             this.groupBox6.Location = new System.Drawing.Point(268, 68);
@@ -385,15 +396,6 @@
             this.textSimBank.Size = new System.Drawing.Size(115, 20);
             this.textSimBank.TabIndex = 0;
             // 
-            // textAircraft
-            // 
-            this.textAircraft.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textAircraft.Location = new System.Drawing.Point(6, 19);
-            this.textAircraft.Name = "textAircraft";
-            this.textAircraft.ReadOnly = true;
-            this.textAircraft.Size = new System.Drawing.Size(236, 20);
-            this.textAircraft.TabIndex = 4;
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -447,8 +449,8 @@
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.TextBox textSimPitch;
         private System.Windows.Forms.TextBox textControllerPitch;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox textControllerPitchStatus2;
+        private System.Windows.Forms.TextBox textPitchControllerStatus;
         private System.Windows.Forms.GroupBox groupBox6;
         private System.Windows.Forms.GroupBox groupBox7;
         private System.Windows.Forms.TextBox textBox3;

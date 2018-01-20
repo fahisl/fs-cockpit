@@ -126,20 +126,24 @@ namespace fs_cockpit_2 {
                         textAircraft.Text = s1.title;
                     }
 
-                    textSimPitch.Text = "Sim angle: " + (int)s1.pitch;
+                    int simPitch = (int)(s1.pitch * 100);
+                    textSimPitch.Text = "Sim angle: " + (double)simPitch / 100;
                     if (portPitch != null && portPitch.IsOpen) {
-                        portPitch.Write("D" + (int)s1.pitch + ",");
-                        try
-                        {
+                        portPitch.Write("D" + simPitch + ",");
+                        try {
                             portPitch.Write("getTarget,");
                             string response = portPitch.ReadLine();
                             textControllerPitch.Text = response;
+
+                            portPitch.Write("getPWM,");
+                            textPitchControllerStatus.Text = portPitch.ReadLine();
+
+                            portPitch.Write("getTargetPot,");
+                            textControllerPitchStatus2.Text = portPitch.ReadLine();
                         }
-                        catch (Exception)
-                        {
+                        catch (Exception) {
                             displayText("Could not read back from pitch controller");
                         }
-                        
                     }
 
                     textSimBank.Text = "Sim angle: " + (int)s1.bank;

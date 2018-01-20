@@ -14,19 +14,20 @@ const int separationCharacter = ',';
 const double maxPWMDegrees = 5;
 const int maxPWM = 255;
 const int minPWM = 0;
-const int potZero = 467;
-const int maxPot = 543;
-const int minPot = 281;
-const int mapperMinAngle = -10;
-const int mapperMinPot = 391;
-const int mapperMaxAngle = 10;
-const int mapperMaxPot = 543;
+const double potZero = 467;
+const double maxPot = 543;
+const double minPot = 281;
+const double realDegreesFactor = 100;
+const double mapperMinAngle = -10;
+const double mapperMinPot = 391;
+const double mapperMaxAngle = 10;
+const double mapperMaxPot = 543;
 
 // System variables
 double potPerDegree = (mapperMaxPot - potZero) / mapperMaxAngle;
 double pwmFactor = (maxPWM / maxPWMDegrees) / potPerDegree;
-int targetAngle = 0;
-int targetPot = potZero;
+double targetAngle = 0;
+double targetPot = potZero;
 int currentPot;
 int deltaPot = 0;
 int nextPWMValue = 0;
@@ -53,9 +54,9 @@ void loop() {
 }
 
 void setTarget() {
-  targetPot = map(targetAngle, mapperMinAngle, mapperMaxAngle, mapperMinPot, mapperMaxPot);
+  targetPot = dmap(targetAngle, mapperMinAngle, mapperMaxAngle, mapperMinPot, mapperMaxPot);
   targetPot = constrain(targetPot, minPot, maxPot);
-  currentPot = analogRead(pinPotentiometer);
+  currentPot = testMode ? 0 : analogRead(pinPotentiometer);
   deltaPot = abs(currentPot - targetPot);
 }
 
@@ -89,6 +90,10 @@ void pulse(bool direction, int duration, int pwm) {
   analogWrite(pinPWM, 0);
 }
 
+double dmap(double x, double in_min, double in_max, double out_min, double out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
 void readCommand() {
   command = Serial.readStringUntil(separationCharacter);
 
@@ -104,6 +109,7 @@ void readCommand() {
 
   if (command.startsWith("D")) {
     targetAngle = command.substring(1).toInt();
+    targetAngle /= 100;
     return;
   }
 
@@ -113,7 +119,7 @@ void readCommand() {
   }
 
   if (command == "getTargetPot") {
-    Serial.println("Target potentiometer: " + String(targetPot));
+    Serial.println("Target pot: " + String(targetPot));
     return;
   }
 
