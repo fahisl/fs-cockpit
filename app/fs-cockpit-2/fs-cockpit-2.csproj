@@ -33,7 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LockheedMartin.Prepar3D.SimConnect">
-      <HintPath>..\..\..\..\..\..\p3dv3-sdk\Utilities\SimConnect SDK\lib\managed\LockheedMartin.Prepar3D.SimConnect.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\p3dv3-sdk\Utilities\SimConnect SDK\lib\managed\LockheedMartin.Prepar3D.SimConnect.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
