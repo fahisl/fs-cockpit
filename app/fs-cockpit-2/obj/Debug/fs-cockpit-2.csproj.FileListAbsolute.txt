@@ -8,3 +8,14 @@ C:\Users\Fahim\source\repos\fs-cockpit-2\fs-cockpit-2\obj\Debug\fs-cockpit-2.csp
 C:\Users\Fahim\source\repos\fs-cockpit-2\fs-cockpit-2\obj\Debug\fs-cockpit-2.csproj.CoreCompileInputs.cache
 C:\Users\Fahim\source\repos\fs-cockpit-2\fs-cockpit-2\obj\Debug\fs-cockpit-2.exe
 C:\Users\Fahim\source\repos\fs-cockpit-2\fs-cockpit-2\obj\Debug\fs-cockpit-2.pdb
+C:\Users\Fahim\Documents\Source\fs-cockpit\app\fs-cockpit-2\obj\Debug\fs_cockpit_2.Form1.resources
+C:\Users\Fahim\Documents\Source\fs-cockpit\app\fs-cockpit-2\obj\Debug\fs_cockpit_2.Properties.Resources.resources
+C:\Users\Fahim\Documents\Source\fs-cockpit\app\fs-cockpit-2\obj\Debug\fs-cockpit-2.csproj.GenerateResource.Cache
+C:\Users\Fahim\Documents\Source\fs-cockpit\app\fs-cockpit-2\obj\Debug\fs-cockpit-2.csproj.CoreCompileInputs.cache
+C:\Users\Fahim\Documents\Source\fs-cockpit\app\fs-cockpit-2\obj\Debug\fs-cockpit-2.pdb
+C:\Users\Fahim\Documents\Source\fs-cockpit\app\fs-cockpit-2\bin\Debug\fs-cockpit-2.exe.config
+C:\Users\Fahim\Documents\Source\fs-cockpit\app\fs-cockpit-2\bin\Debug\fs-cockpit-2.exe
+C:\Users\Fahim\Documents\Source\fs-cockpit\app\fs-cockpit-2\bin\Debug\fs-cockpit-2.pdb
+C:\Users\Fahim\Documents\Source\fs-cockpit\app\fs-cockpit-2\bin\Debug\LockheedMartin.Prepar3D.SimConnect.dll
+C:\Users\Fahim\Documents\Source\fs-cockpit\app\fs-cockpit-2\obj\Debug\fs-cockpit-2.csprojResolveAssemblyReference.cache
+C:\Users\Fahim\Documents\Source\fs-cockpit\app\fs-cockpit-2\obj\Debug\fs-cockpit-2.exe
