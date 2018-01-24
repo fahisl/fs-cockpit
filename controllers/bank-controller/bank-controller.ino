@@ -8,25 +8,34 @@ const int pinDirection = 2;
 const int pinPWM = 3;
 
 // System constants
-const int upSpeeds[6]   = {0, 80, 100, 110, 125, 250};
-const int downSpeeds[6] = {0, 80, 100, 110, 125, 250};
-const int serialBaudRate = 115200;
 const int separationCharacter = ',';
 
 // Platform calibration
-const int maxAngle = 20;
-const int potZero = 407;
-const int potDeltaMax = 134;
+const double maxPWMDegrees = 5;
+const int maxPWM = 255;
+const int minPWM = 0;
+const double potZero = 407;
+const double maxPot = 588;
+const double minPot = 236;
+const double realDegreesFactor = 100;
+const double mapperMinAngle = -20;
+const double mapperMinPot = 236;
+const double mapperMaxAngle = 20;
+const double mapperMaxPot = 588;
 
 // System variables
-int targetAngle = 0;
-int targetPot = potZero;
+double potPerDegree = (mapperMaxPot - potZero) / mapperMaxAngle;
+double pwmFactor = (maxPWM / maxPWMDegrees) / potPerDegree;
+double targetAngle = 0;
+double targetPot = potZero;
 int currentPot;
-int pwmValue = 0;
-bool directionValue;
 int deltaPot = 0;
-String command;
+int nextPWMValue = 0;
+int pwmValue = 0;
+bool nextDirectionValue;
+bool directionValue;
 bool testMode = false;
+String command;
 
 void setup() {
   // Set pin modes
@@ -38,27 +47,51 @@ void setup() {
 }
 
 void loop() {
-  // Read command
   readCommand();
-  targetPot = map(targetAngle, -20, 20, 236, 588);
-  if (targetPot > 588) targetPot = 588;
-  if (targetPot < 236) targetPot = 236;
-  currentPot = analogRead(pinPotentiometer);
+  setTarget();
+  setDirection();
+  setPWM();
+}
 
-  // Set direction
-  bool newDirectionValue = (targetPot <= currentPot);
-  if (newDirectionValue != directionValue) {
-    if (!testMode) digitalWrite(pinDirection, newDirectionValue);
-    directionValue = newDirectionValue;
+void setTarget() {
+  targetPot = dmap(targetAngle, mapperMinAngle, mapperMaxAngle, mapperMinPot, mapperMaxPot);
+  targetPot = constrain(targetPot, minPot, maxPot);
+  currentPot = testMode ? 0 : analogRead(pinPotentiometer);
+  deltaPot = abs(currentPot - targetPot);
+}
+
+void setDirection() {
+  nextDirectionValue = (targetPot <= currentPot);
+  if (nextDirectionValue != directionValue) {
+    if (!testMode) digitalWrite(pinDirection, nextDirectionValue);
+    directionValue = nextDirectionValue;
+  }
+}
+
+void setPWM() {
+  nextPWMValue = pwmFactor * deltaPot;
+  nextPWMValue = constrain(nextPWMValue, 0, maxPWM);
+
+  // This block prevents using PWM that is too low to move the platform
+  if (nextPWMValue < minPWM) {
+    nextPWMValue = 0;
   }
 
-  // Set PWM
-  deltaPot = min(5, abs(currentPot - targetPot) / 8.8);
-  int newPWMValue = upSpeeds[deltaPot];
-  if (newPWMValue != pwmValue) {
-    if (!testMode) analogWrite(pinPWM, newPWMValue);
-    pwmValue = newPWMValue;
+  if (nextPWMValue != pwmValue) {
+    if (!testMode) analogWrite(pinPWM, nextPWMValue);
+    pwmValue = nextPWMValue;
   }
+}
+
+void pulse(bool direction, int duration, int pwm) {
+  digitalWrite(pinDirection, direction);
+  analogWrite(pinPWM, pwm);
+  delay(duration);
+  analogWrite(pinPWM, 0);
+}
+
+double dmap(double x, double in_min, double in_max, double out_min, double out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 void readCommand() {
@@ -76,6 +109,7 @@ void readCommand() {
 
   if (command.startsWith("D")) {
     targetAngle = command.substring(1).toInt();
+    targetAngle /= 100;
     return;
   }
 
@@ -85,7 +119,7 @@ void readCommand() {
   }
 
   if (command == "getTargetPot") {
-    Serial.println("Target potentiometer: " + String(targetPot));
+    Serial.println("Target pot: " + String(targetPot));
     return;
   }
 
@@ -111,18 +145,12 @@ void readCommand() {
   }
 
   if (command == "pulsePositive") {
-    digitalWrite(pinDirection, HIGH);
-    analogWrite(pinPWM, 100);
-    delay(1000);
-    analogWrite(pinPWM, 0);
+    pulse(HIGH, 1000, 100);
     return;
   }
 
   if (command == "pulseNegative") {
-    digitalWrite(pinDirection, LOW);
-    analogWrite(pinPWM, 100);
-    delay(1000);
-    analogWrite(pinPWM, 0);
+    pulse(LOW, 1000, 100);
     return;
   }
 }
