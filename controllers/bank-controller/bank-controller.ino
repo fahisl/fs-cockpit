@@ -56,7 +56,7 @@ void loop() {
 void setTarget() {
   targetPot = dmap(targetAngle, mapperMinAngle, mapperMaxAngle, mapperMinPot, mapperMaxPot);
   targetPot = constrain(targetPot, minPot, maxPot);
-  currentPot = testMode ? 0 : analogRead(pinPotentiometer);
+  currentPot = testMode ? potZero : analogRead(pinPotentiometer);
   deltaPot = abs(currentPot - targetPot);
 }
 

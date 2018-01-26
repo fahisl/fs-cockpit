@@ -147,7 +147,7 @@ namespace fs_cockpit_2 {
                     }
 
                     int simBank = (int)(s1.bank * 100);
-                    textSimBank.Text = "Sim angle: " + (double)s1.bank / 100;
+                    textSimBank.Text = "Sim angle: " + (double)simBank / 100;
                     if (portBank != null && portBank.IsOpen) {
                         portBank.Write("D" + simBank + ",");
                         try {
@@ -155,7 +155,11 @@ namespace fs_cockpit_2 {
                             string response = portBank.ReadLine();
                             textControllerBank.Text = response;
 
-                            // TODO: getPWM and getTargetPot
+                            portBank.Write("getPWM,");
+                            textControllerBankStatus.Text = portBank.ReadLine();
+
+                            portBank.Write("getTargetPot,");
+                            textControllerBankStatus2.Text = portBank.ReadLine();
                         }
                         catch (Exception) {
                             displayText("Could not read back from bank controller");
