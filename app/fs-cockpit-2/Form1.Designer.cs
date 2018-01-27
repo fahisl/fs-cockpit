@@ -54,8 +54,8 @@
             this.textPitchControllerStatus = new System.Windows.Forms.TextBox();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
-            this.textBox3 = new System.Windows.Forms.TextBox();
-            this.textBox4 = new System.Windows.Forms.TextBox();
+            this.textControllerBankStatus = new System.Windows.Forms.TextBox();
+            this.textControllerBankStatus2 = new System.Windows.Forms.TextBox();
             this.textControllerBank = new System.Windows.Forms.TextBox();
             this.textSimBank = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
@@ -351,8 +351,8 @@
             // 
             // groupBox7
             // 
-            this.groupBox7.Controls.Add(this.textBox3);
-            this.groupBox7.Controls.Add(this.textBox4);
+            this.groupBox7.Controls.Add(this.textControllerBankStatus);
+            this.groupBox7.Controls.Add(this.textControllerBankStatus2);
             this.groupBox7.Controls.Add(this.textControllerBank);
             this.groupBox7.Controls.Add(this.textSimBank);
             this.groupBox7.Location = new System.Drawing.Point(269, 149);
@@ -362,21 +362,23 @@
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Bank Axis Status";
             // 
-            // textBox3
+            // textControllerBankStatus
             // 
-            this.textBox3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBox3.Location = new System.Drawing.Point(128, 48);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(115, 20);
-            this.textBox3.TabIndex = 3;
+            this.textControllerBankStatus.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textControllerBankStatus.Location = new System.Drawing.Point(128, 48);
+            this.textControllerBankStatus.Name = "textControllerBankStatus";
+            this.textControllerBankStatus.ReadOnly = true;
+            this.textControllerBankStatus.Size = new System.Drawing.Size(115, 20);
+            this.textControllerBankStatus.TabIndex = 3;
             // 
-            // textBox4
+            // textControllerBankStatus2
             // 
-            this.textBox4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBox4.Location = new System.Drawing.Point(128, 22);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(115, 20);
-            this.textBox4.TabIndex = 2;
+            this.textControllerBankStatus2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textControllerBankStatus2.Location = new System.Drawing.Point(128, 22);
+            this.textControllerBankStatus2.Name = "textControllerBankStatus2";
+            this.textControllerBankStatus2.ReadOnly = true;
+            this.textControllerBankStatus2.Size = new System.Drawing.Size(115, 20);
+            this.textControllerBankStatus2.TabIndex = 2;
             // 
             // textControllerBank
             // 
@@ -409,7 +411,7 @@
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Name = "Form1";
-            this.Text = "FS Cockpit 2.0";
+            this.Text = "JetSim 1.0.2";
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
@@ -453,8 +455,8 @@
         private System.Windows.Forms.TextBox textPitchControllerStatus;
         private System.Windows.Forms.GroupBox groupBox6;
         private System.Windows.Forms.GroupBox groupBox7;
-        private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.TextBox textBox4;
+        private System.Windows.Forms.TextBox textControllerBankStatus;
+        private System.Windows.Forms.TextBox textControllerBankStatus2;
         private System.Windows.Forms.TextBox textControllerBank;
         private System.Windows.Forms.TextBox textSimBank;
         private System.Windows.Forms.TextBox textAircraft;

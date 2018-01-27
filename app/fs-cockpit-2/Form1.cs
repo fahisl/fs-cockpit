@@ -61,33 +61,33 @@ namespace fs_cockpit_2 {
 
         private void closeConnection() {
             if (simconnect != null) {
-                simconnect.Dispose();  // Dispose same as SimConnect_Close() 
+                simconnect.Dispose();  // Dispose same as SimConnect_Close()
                 simconnect = null;
                 displayText("Connection to Prepar3D is closed");
             }
         }
 
-        // Set up all the SimConnect related data definitions and event handlers 
+        // Set up all the SimConnect related data definitions and event handlers
         private void initDataRequest() {
             try {
-                // listen to connect and quit msgs 
+                // listen to connect and quit msgs
                 simconnect.OnRecvOpen += new SimConnect.RecvOpenEventHandler(simconnect_OnRecvOpen);
                 simconnect.OnRecvQuit += new SimConnect.RecvQuitEventHandler(simconnect_OnRecvQuit);
 
-                // listen to exceptions 
+                // listen to exceptions
                 simconnect.OnRecvException += new SimConnect.RecvExceptionEventHandler(simconnect_OnRecvException);
 
-                // define a data structure 
+                // define a data structure
                 simconnect.AddToDataDefinition(DEFINITIONS.Struct1, "title", null, SIMCONNECT_DATATYPE.STRING256, 0.0f, SimConnect.SIMCONNECT_UNUSED);
                 simconnect.AddToDataDefinition(DEFINITIONS.Struct1, "PLANE PITCH DEGREES", "degrees", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
                 simconnect.AddToDataDefinition(DEFINITIONS.Struct1, "PLANE BANK DEGREES", "degrees", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
                 simconnect.AddToDataDefinition(DEFINITIONS.Struct1, "Plane Altitude", "feet", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
 
-                // IMPORTANT: register it with the simconnect managed wrapper marshaller 
-                // if you skip this step, you will only receive a uint in the .dwData field. 
+                // IMPORTANT: register it with the simconnect managed wrapper marshaller
+                // if you skip this step, you will only receive a uint in the .dwData field.
                 simconnect.RegisterDataDefineStruct<Struct1>(DEFINITIONS.Struct1);
 
-                // catch a simobject data request 
+                // catch a simobject data request
                 //simconnect.OnRecvSimobjectDataBytype += new SimConnect.RecvSimobjectDataBytypeEventHandler(simconnect_OnRecvSimobjectDataBytype);
                 simconnect.OnRecvSimobjectData += new SimConnect.RecvSimobjectDataEventHandler(simconnect_OnRecvSimobjectData);
             }
@@ -100,7 +100,7 @@ namespace fs_cockpit_2 {
             displayText("Connected to Prepar3D");
         }
 
-        // The case where the user closes Prepar3D 
+        // The case where the user closes Prepar3D
         void simconnect_OnRecvQuit(SimConnect sender, SIMCONNECT_RECV data) {
             displayText("Prepar3D has exited");
             closeConnection();
@@ -110,7 +110,7 @@ namespace fs_cockpit_2 {
             displayText("Exception received: " + data.dwException);
         }
 
-        // The case where the user closes the client 
+        // The case where the user closes the client
         private void Form1_FormClosed(object sender, FormClosedEventArgs e) {
             closeConnection();
             portPitch.Close();
@@ -146,17 +146,22 @@ namespace fs_cockpit_2 {
                         }
                     }
 
-                    textSimBank.Text = "Sim angle: " + (int)s1.bank;
+                    int simBank = (int)(s1.bank * 100);
+                    textSimBank.Text = "Sim angle: " + (double)simBank / 100;
                     if (portBank != null && portBank.IsOpen) {
-                        portBank.Write("D" + (int)s1.bank + ",");
-                        try
-                        {
+                        portBank.Write("D" + simBank + ",");
+                        try {
                             portBank.Write("getTarget,");
                             string response = portBank.ReadLine();
                             textControllerBank.Text = response;
+
+                            portBank.Write("getPWM,");
+                            textControllerBankStatus.Text = portBank.ReadLine();
+
+                            portBank.Write("getTargetPot,");
+                            textControllerBankStatus2.Text = portBank.ReadLine();
                         }
-                        catch (Exception)
-                        {
+                        catch (Exception) {
                             displayText("Could not read back from bank controller");
                         }
                     }
@@ -194,9 +199,9 @@ namespace fs_cockpit_2 {
 
         private void buttonRequestData_Click_1(object sender, EventArgs e) {
             simconnect.RequestDataOnSimObject(
-                DATA_REQUESTS.REQUEST_1, 
-                DEFINITIONS.Struct1, 
-                SimConnect.SIMCONNECT_OBJECT_ID_USER, 
+                DATA_REQUESTS.REQUEST_1,
+                DEFINITIONS.Struct1,
+                SimConnect.SIMCONNECT_OBJECT_ID_USER,
                 SIMCONNECT_PERIOD.SIM_FRAME,
                 SIMCONNECT_DATA_REQUEST_FLAG.DEFAULT,
                 0,
@@ -207,20 +212,20 @@ namespace fs_cockpit_2 {
             buttonRequestData.Enabled = false;
         }
 
-        // Response number 
+        // Response number
         int response = 1;
 
-        // Output text - display a maximum of 10 lines 
+        // Output text - display a maximum of 10 lines
         string output = "\n\n\n\n\n\n\n\n\n\n";
 
         void displayText(string s) {
-            // remove first string from output 
+            // remove first string from output
             output = output.Substring(output.IndexOf("\n") + 1);
 
-            // add the new string 
+            // add the new string
             output += "\n" + response++ + ": " + s;
 
-            // display it 
+            // display it
             richResponse.Text = output;
         }
 
