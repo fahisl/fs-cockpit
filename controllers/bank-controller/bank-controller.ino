@@ -8,6 +8,7 @@ const int pinDirection = 2;
 const int pinPWM = 3;
 
 // System constants
+const String boardId = "c5b6d4a4-09f2-4a3f-ae90-2a2b3c24d842";
 const int separationCharacter = ',';
 
 // Platform calibration
@@ -110,6 +111,11 @@ void readCommand() {
   if (command.startsWith("D")) {
     targetAngle = command.substring(1).toInt();
     targetAngle /= 100;
+    return;
+  }
+
+  if (command == "ident") {
+    Serial.println(boardId);
     return;
   }
 

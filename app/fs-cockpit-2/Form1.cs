@@ -20,6 +20,8 @@ namespace fs_cockpit_2 {
         SerialPort portPitch = null;
         SerialPort portBank = null;
 
+        private BackgroundWorker portScanner;
+
         enum DEFINITIONS {
             Struct1,
         };
@@ -39,7 +41,43 @@ namespace fs_cockpit_2 {
 
         public Form1() {
             InitializeComponent();
+            InitializeWorkers();
             setButtons(true, false, false);
+        }
+
+        private void InitializeWorkers() {
+            portScanner.DoWork += new DoWorkEventHandler(scanPorts);
+            portScanner.RunWorkerCompleted += new RunWorkerCompletedEventHandler(scanPortsComplete);
+        }
+
+        private void scanPorts(object sender, DoWorkEventArgs e) {
+            BackgroundWorker worker = sender as BackgroundWorker;
+
+            getPortWithId();
+            e.Result = true;
+        }
+
+        private void scanPortsComplete(object sender, RunWorkerCompletedEventArgs e) {
+            if (portPitch != null) {
+                portPitch.Open();
+                textPitchConnStatus.Text = "Pitch: connected";
+                buttonDisconnectAllPorts.Enabled = true;
+                displayText("Connected to pitch axis controller");
+            }
+            else {
+                textPitchConnStatus.Text = "Pitch: not found";
+                displayText("Pitch axis controller was not detected");
+            }
+            if (portBank != null) {
+                portBank.Open();
+                textBankConnStatus.Text = "Bank: connected";
+                buttonDisconnectAllPorts.Enabled = true;
+                displayText("Connected to bank axis controller");
+            }
+            else {
+                textBankConnStatus.Text = "Bank: not found";
+                displayText("Bank axis controller was not detected");
+            }
         }
 
         protected override void DefWndProc(ref Message m) {
@@ -55,7 +93,6 @@ namespace fs_cockpit_2 {
 
         private void setButtons(bool bConnect, bool bGet, bool bDisconnect) {
             buttonConnect.Enabled = bConnect;
-            buttonRequestData.Enabled = bGet;
             buttonDisconnect.Enabled = bDisconnect;
         }
 
@@ -180,6 +217,16 @@ namespace fs_cockpit_2 {
                     simconnect = new SimConnect("Managed Data Request", this.Handle, WM_USER_SIMCONNECT, null, 0);
                     setButtons(false, true, true);
                     initDataRequest();
+                    simconnect.RequestDataOnSimObject(
+                        DATA_REQUESTS.REQUEST_1,
+                        DEFINITIONS.Struct1,
+                        SimConnect.SIMCONNECT_OBJECT_ID_USER,
+                        SIMCONNECT_PERIOD.SIM_FRAME,
+                        SIMCONNECT_DATA_REQUEST_FLAG.DEFAULT,
+                        0,
+                        6,
+                        0
+                    );
                 }
                 catch (COMException ex) {
                     displayText("Unable to connect to Prepar3D:\n\n" + ex.Message);
@@ -197,155 +244,75 @@ namespace fs_cockpit_2 {
             setButtons(true, false, false);
         }
 
-        private void buttonRequestData_Click_1(object sender, EventArgs e) {
-            simconnect.RequestDataOnSimObject(
-                DATA_REQUESTS.REQUEST_1,
-                DEFINITIONS.Struct1,
-                SimConnect.SIMCONNECT_OBJECT_ID_USER,
-                SIMCONNECT_PERIOD.SIM_FRAME,
-                SIMCONNECT_DATA_REQUEST_FLAG.DEFAULT,
-                0,
-                6,
-                0
-            );
-            displayText("Request sent...");
-            buttonRequestData.Enabled = false;
-        }
-
-        // Response number
         int response = 1;
-
-        // Output text - display a maximum of 10 lines
-        string output = "\n\n\n\n\n\n\n\n\n\n";
-
+        string output = "\n\n\n\n\n\n\n\n\n\n\n\n";
         void displayText(string s) {
-            // remove first string from output
             output = output.Substring(output.IndexOf("\n") + 1);
-
-            // add the new string
             output += "\n" + response++ + ": " + s;
-
-            // display it
             richResponse.Text = output;
         }
 
-        private void button1_Click(object sender, EventArgs e) {
-            if (!portPitch.IsOpen) {
-                displayText("Pitch axis COM port is not connected");
-                return;
-            }
-            if (button1.Text == "Test ON") {
-                portPitch.Write("on,");
-                displayText("Verify LED is now ON on pitch Arduino controller");
-                button1.Text = "Test OFF";
-            }
-            else {
-                portPitch.Write("off,");
-                displayText("Verify LED is now OFF on pitch Arduino controller");
-                button1.Text = "Test ON";
+        private void getPortWithId() {
+            string[] portNames = SerialPort.GetPortNames();
+            foreach (string portName in portNames) {
+                if (portPitch != null && portBank != null) return;
+                SerialPort tmpPort = new SerialPort(portName, 115200, Parity.None, 8, StopBits.One);
+                try {
+                    tmpPort.ReadTimeout = 500;
+                    tmpPort.Open();
+                    System.Threading.Thread.Sleep(3000);
+                    tmpPort.Write("ident,");
+                    string boardId = tmpPort.ReadLine();
+                    if (boardId.Contains("c5b6d4a4-09f2-4a3f-ae90-2a2b3c24d842")) {
+                        tmpPort.Close();
+                        portBank = new SerialPort(portName, 115200, Parity.None, 8, StopBits.One);
+                    }
+                    else if (boardId.Contains("bcbc7cc9-f2be-4303-87f1-9ca2e0378e0b")) {
+                        tmpPort.Close();
+                        portPitch = new SerialPort(portName, 115200, Parity.None, 8, StopBits.One);
+                    }
+                }
+                catch (Exception) {}
+                tmpPort.Close();
             }
         }
 
-        private void buttonPitchConnect_Click(object sender, EventArgs e) {
-            if (comboPitchCom.Text == "") {
-                displayText("Select pitch axis COM port first");
-                return;
+        private void buttonConnectAllPorts_Click(object sender, EventArgs e) {
+            buttonConnectAllPorts.Enabled = false;
+            if (portPitch == null || portBank == null) {
+                textPitchConnStatus.Text = "Pitch: scanning";
+                textBankConnStatus.Text = "Bank: scanning";
+                displayText("Scanning for motion controllers");
+                portScanner.RunWorkerAsync();
             }
-            try {
-                comboPitchCom.Enabled = false;
-                portPitch = new SerialPort(comboPitchCom.Text, 115200, Parity.None, 8, StopBits.One);
+            else {
                 portPitch.Open();
-                buttonPitchConnect.Enabled = false;
-                buttonPitchDisconnect.Enabled = true;
-                button1.Enabled = true;
-                displayText("Connected to " + comboPitchCom.Text);
-            }
-            catch (Exception) {
-                displayText("Error connecting to " + comboPitchCom.Text);
-                comboPitchCom.Enabled = true;
-                buttonPitchConnect.Enabled = true;
-                buttonPitchDisconnect.Enabled = true;
-            }
-        }
+                textPitchConnStatus.Text = "Pitch: connected";
+                displayText("Connected to pitch axis controller");
+                buttonDisconnectAllPorts.Enabled = true;
 
-        private void buttonPitchDisconnectClick(object sender, EventArgs e) {
-            if (portPitch.IsOpen) {
-                portPitch.Close();
-                displayText("Disconnected from pitch axis COM port");
-            }
-            else {
-                displayText("Already disconnected from pitch axis COM port");
-            }
-            comboPitchCom.Enabled = true;
-            buttonPitchConnect.Enabled = true;
-            button1.Enabled = false;
-            buttonPitchDisconnect.Enabled = false;
-        }
-
-        private void comboPitchCom_SelectedIndexChanged(object sender, EventArgs e) {
-            if (comboPitchCom.Text != "") {
-                buttonPitchConnect.Enabled = true;
-            }
-            else {
-                buttonPitchConnect.Enabled = false;
-            }
-        }
-
-        private void buttonBankConnect_Click(object sender, EventArgs e) {
-            if (comboBankCom.Text == "") {
-                displayText("Select bank axis COM port first");
-                return;
-            }
-            try {
-                comboBankCom.Enabled = false;
-                portBank = new SerialPort(comboBankCom.Text, 115200, Parity.None, 8, StopBits.One);
                 portBank.Open();
-                buttonBankConnect.Enabled = false;
-                buttonBankDisconnect.Enabled = true;
-                buttonBankTest.Enabled = true;
-                displayText("Connected to " + comboBankCom.Text);
+                textBankConnStatus.Text = "Bank: connected";
+                displayText("Connected to bank axis controller");
+                buttonDisconnectAllPorts.Enabled = true;
             }
-            catch (Exception) {
-                displayText("Error connecting to " + comboBankCom.Text);
-                comboBankCom.Enabled = true;
-                buttonBankConnect.Enabled = true;
-                buttonBankDisconnect.Enabled = true;
-            }
+            
         }
 
-        private void buttonBankTest_Click(object sender, EventArgs e) {
-            if (!portBank.IsOpen) {
-                displayText("Bank axis COM port is not connected");
-                return;
+        private void buttonDisconnectAllPorts_Click(object sender, EventArgs e) {
+            buttonDisconnectAllPorts.Enabled = false;
+            if (portPitch != null) {
+                portPitch.Close();
+                textPitchConnStatus.Text = "Pitch: disconnected";
+                buttonConnectAllPorts.Enabled = true;
+                displayText("Disconnected from pitch axis controller");
             }
-            if (buttonBankTest.Text == "Test ON") {
-                portBank.Write("on,");
-                displayText("Verify LED is now ON on bank axis Arduino controller");
-                buttonBankTest.Text = "Test OFF";
-            }
-            else {
-                portBank.Write("off,");
-                displayText("Verify LED is now OFF on bank axis Arduino controller");
-                buttonBankTest.Text = "Test ON";
-            }
-        }
-
-        private void comboBankCom_SelectedIndexChanged(object sender, EventArgs e) {
-            buttonBankConnect.Enabled = (comboBankCom.Text != "");
-        }
-
-        private void buttonBankDisconnect_Click(object sender, EventArgs e) {
-            if (portBank.IsOpen) {
+            if (portBank != null) {
                 portBank.Close();
-                displayText("Disconnected from bank axis COM port");
+                textBankConnStatus.Text = "Bank: disconnected";
+                buttonConnectAllPorts.Enabled = true;
+                displayText("Disconnected from bank axis controller");
             }
-            else {
-                displayText("Already disconnected from bank axis COM port");
-            }
-            comboBankCom.Enabled = true;
-            buttonBankConnect.Enabled = true;
-            buttonBankTest.Enabled = false;
-            buttonBankDisconnect.Enabled = false;
         }
     }
 }
