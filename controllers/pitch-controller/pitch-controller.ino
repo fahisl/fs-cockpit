@@ -1,6 +1,6 @@
-// FS Platform Controller 
+// FS Platform Controller
 
-#include "Controller.h"
+#include "../libraries/Controller.h"
 
 Controller controller("bcbc7cc9-f2be-4303-87f1-9ca2e0378e0b");
 
@@ -15,4 +15,3 @@ void setup() {
 void loop() {
   controller.main();
 }
-
