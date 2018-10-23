@@ -22,7 +22,7 @@ end
 
 function LuaExportAfterNextFrame()
 	local pitch, bank, yaw = LoGetADIPitchBankYaw()
-	socket.try(c:send(string.format("%+06d%+06d\n", 5730*pitch, 5730*bank)))
+	socket.try(c:send(string.format("%+06d%+06d\n", -5730*pitch, -5730*bank)))
 end
 
 function LuaExportStop()
